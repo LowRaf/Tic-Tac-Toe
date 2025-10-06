@@ -30,7 +30,7 @@ public class TicTacViewController implements Initializable
 
     @FXML
     private GridPane gridPane;
-    
+
     private static final String TXT_PLAYER = "Player: ";
     private IGameBoard game;
 
@@ -53,8 +53,13 @@ public class TicTacViewController implements Initializable
             {
                 if (game.isGameOver())
                 {
+
                     int winner = game.getWinner();
                     displayWinner(winner);
+                    Button btn = (Button) event.getSource();
+                    String xOrO = player == 0 ? "X" : "O";
+                    btn.setText(xOrO);
+
                 }
                 else
                 {
