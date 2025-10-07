@@ -1,14 +1,25 @@
 
 package dk.easv.tictactoe.bll;
 
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+
+import java.util.Arrays;
+
 public class GameBoard implements IGameBoard
 {
     /**
-     /**
      *
      * @author EASV
      *
+     */
 
+    private int horizontalWinner = -1;
+    private int verticalWinner = -1;
+    private boolean diagonalWinner1;
+    private boolean diagonalWinner2;
+    /**
+     *
      * Returns 0 for player 0, 1 for player 1.
      *
      * @return int Id of the next player.
@@ -21,9 +32,6 @@ public class GameBoard implements IGameBoard
         else
             return 0;
     }
-
-
-
 
     /**
      * Attempts to let the current player play at the given coordinates. It the
@@ -62,20 +70,29 @@ public class GameBoard implements IGameBoard
      *
      * @return true if the game is over, else it will retun false.
      */
+    int winner = -1;
     public boolean isGameOver()
     {
         for (int i = 0; i<3; i++)
             if (board[i][0] == 0 && board[i][1] == 0 && board[i][2] == 0 || board[i][0] == 1 && board[i][1] == 1 && board[i][2] == 1) {
+                winner = board[i][0];
+                horizontalWinner = i;
                 return true;
             }
         for (int i = 0; i<3; i++)
             if (board[0][i] == 0 && board[1][i] == 0 && board[2][i] == 0 || board[0][i] == 1 && board[1][i] == 1 && board[2][i] == 1) {
+                winner = board[0][i];
+                verticalWinner = i;
                 return true;
             }
         if (board[0][0] == 0 && board[1][1] == 0 && board[2][2] == 0 || board[0][0] == 1 && board[1][1] == 1 && board[2][2] == 1) {
+            winner = board[1][1];
+            diagonalWinner1 = true;
             return true;
         }
         if (board[2][0] == 0 && board[1][1] == 0 && board[0][2] == 0 || board[2][0] == 1 && board[1][1] == 1 && board[0][2] == 1) {
+            winner = board[1][1];
+            diagonalWinner2= true;
             return true;
         }
         int counter=0;
@@ -92,16 +109,13 @@ public class GameBoard implements IGameBoard
         return false;
     }
 
-
     /**
      * Gets the id of the winner, -1 if its a draw.
      *
      * @return int id of winner, or -1 if draw.
      */
     public int getWinner() {
-        if (isGameOver());
-        {   return playerId;
-        }
+        return winner;
     }
 
     /**
@@ -115,5 +129,32 @@ public class GameBoard implements IGameBoard
             }
         }
         playerId=1;
+        winner = -1;
+        horizontalWinner = -1;
+        verticalWinner = -1;
+        diagonalWinner1 = false;
+        diagonalWinner2 = false;
     }
+
+    public int getHorizontalWinner()
+    {
+        return horizontalWinner;
+    }
+
+    public int getVerticalWinner()
+    {
+        return verticalWinner;
+    }
+
+    public boolean isDiagonalWinner1()
+    {
+        return diagonalWinner1;
+    }
+
+    public boolean isDiagonalWinner2()
+    {
+        return diagonalWinner2;
+    }
+
+
 }

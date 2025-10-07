@@ -20,8 +20,7 @@ import dk.easv.tictactoe.bll.IGameBoard;
  *
  * @author EASV
  */
-public class TicTacViewController implements Initializable
-{
+public class TicTacViewController implements Initializable {
     @FXML
     private Label lblPlayer;
 
@@ -31,8 +30,28 @@ public class TicTacViewController implements Initializable
     @FXML
     private GridPane gridPane;
 
+    @FXML
+    private Button btn1;
+    @FXML
+    private Button btn2;
+    @FXML
+    private Button btn3;
+    @FXML
+    private Button btn4;
+    @FXML
+    private Button btn5;
+    @FXML
+    private Button btn6;
+    @FXML
+    private Button btn7;
+    @FXML
+    private Button btn8;
+    @FXML
+    private Button btn9;
+
     private static final String TXT_PLAYER = "Player: ";
     private IGameBoard game;
+    private boolean gameOver = false;
 
     /**
      * Event handler for the grid buttons
@@ -40,37 +59,32 @@ public class TicTacViewController implements Initializable
      * @param event
      */
     @FXML
-    private void handleButtonAction(ActionEvent event)
-    {
-        try
-        {
+    private void handleButtonAction(ActionEvent event) {
+        try {
             Integer row = GridPane.getRowIndex((Node) event.getSource());
             Integer col = GridPane.getColumnIndex((Node) event.getSource());
             int r = (row == null) ? 0 : row;
             int c = (col == null) ? 0 : col;
             int player = game.getNextPlayer();
-            if (game.play(c, r))
-            {
-                if (game.isGameOver())
-                {
+            if (game.play(c, r)) {
+                if (!gameOver) {
+                    if (game.isGameOver()) {
+                        int winner = game.getWinner();
+                        displayWinner(winner);
+                        Button btn = (Button) event.getSource();
+                        String xOrO = player == 0 ? "X" : "O";
+                        btn.setText(xOrO);
+                        gameOver = true;
 
-                    int winner = game.getWinner();
-                    displayWinner(winner);
-                    Button btn = (Button) event.getSource();
-                    String xOrO = player == 0 ? "X" : "O";
-                    btn.setText(xOrO);
-
-                }
-                else
-                {
-                    Button btn = (Button) event.getSource();
-                    String xOrO = player == 0 ? "X" : "O";
-                    btn.setText(xOrO);
-                    setPlayer();
+                    } else {
+                        Button btn = (Button) event.getSource();
+                        String xOrO = player == 0 ? "X" : "O";
+                        btn.setText(xOrO);
+                        setPlayer();
+                    }
                 }
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
@@ -81,27 +95,23 @@ public class TicTacViewController implements Initializable
      * @param event
      */
     @FXML
-    private void handleNewGame(ActionEvent event)
-    {
+    private void handleNewGame(ActionEvent event) {
         game.newGame();
         setPlayer();
         clearBoard();
+        gameOver = false;
     }
 
     /**
      * Initializes a new controller
      *
-     * @param url
-     * The location used to resolve relative paths for the root object, or
-     * {@code null} if the location is not known.
-     *
-     * @param rb
-     * The resources used to localize the root object, or {@code null} if
-     * the root object was not localized.
+     * @param url The location used to resolve relative paths for the root object, or
+     *            {@code null} if the location is not known.
+     * @param rb  The resources used to localize the root object, or {@code null} if
+     *            the root object was not localized.
      */
     @Override
-    public void initialize(URL url, ResourceBundle rb)
-    {
+    public void initialize(URL url, ResourceBundle rb) {
         game = new GameBoard();
         setPlayer();
     }
@@ -109,21 +119,19 @@ public class TicTacViewController implements Initializable
     /**
      * Set the next player
      */
-    private void setPlayer()
-    {
+    private void setPlayer() {
         lblPlayer.setText(TXT_PLAYER + game.getNextPlayer());
     }
 
 
     /**
      * Finds a winner or a draw and displays a message based
+     *
      * @param winner
      */
-    private void displayWinner(int winner)
-    {
+    private void displayWinner(int winner) {
         String message = "";
-        switch (winner)
-        {
+        switch (winner) {
             case -1:
                 message = "It's a draw :-(";
                 break;
@@ -132,6 +140,70 @@ public class TicTacViewController implements Initializable
                 break;
         }
         lblPlayer.setText(message);
+        setWinnerColor();
+    }
+
+    public void setWinnerColor() {
+        GameBoard gameBoard = (GameBoard) game;
+        int horizontalWinner = gameBoard.getHorizontalWinner();
+        int verticalWinner = gameBoard.getVerticalWinner();
+        boolean diagonalWinner1 = gameBoard.isDiagonalWinner1();
+        boolean diagonalWinner2 = gameBoard.isDiagonalWinner2();
+
+        if (verticalWinner >= 0) {
+            switch (verticalWinner) {
+                case 0:
+                    btn1.setStyle("-fx-background-color: lightgreen;");
+                    btn2.setStyle("-fx-background-color: lightgreen;");
+                    btn3.setStyle("-fx-background-color: lightgreen;");
+                    break;
+                case 1:
+                    btn4.setStyle("-fx-background-color: lightgreen;");
+                    btn5.setStyle("-fx-background-color: lightgreen;");
+                    btn6.setStyle("-fx-background-color: lightgreen;");
+                    break;
+                case 2:
+                    btn7.setStyle("-fx-background-color: lightgreen;");
+                    btn8.setStyle("-fx-background-color: lightgreen;");
+                    btn9.setStyle("-fx-background-color: lightgreen;");
+                    break;
+            }
+        }
+
+        if (horizontalWinner >= 0) {
+            switch (horizontalWinner) {
+                case 0:
+                    btn1.setStyle("-fx-background-color: lightgreen;");
+                    btn4.setStyle("-fx-background-color: lightgreen;");
+                    btn7.setStyle("-fx-background-color: lightgreen;");
+                    break;
+
+                case 1:
+                    btn2.setStyle("-fx-background-color: lightgreen;");
+                    btn5.setStyle("-fx-background-color: lightgreen;");
+                    btn8.setStyle("-fx-background-color: lightgreen;");
+                    break;
+
+                case 2:
+                    btn3.setStyle("-fx-background-color: lightgreen;");
+                    btn6.setStyle("-fx-background-color: lightgreen;");
+                    btn9.setStyle("-fx-background-color: lightgreen;");
+                    break;
+            }
+        }
+
+        if (diagonalWinner1) {
+            btn1.setStyle("-fx-background-color: lightgreen;");
+            btn5.setStyle("-fx-background-color: lightgreen;");
+            btn9.setStyle("-fx-background-color: lightgreen;");
+        }
+
+        if (diagonalWinner2) {
+            btn3.setStyle("-fx-background-color: lightgreen;");
+            btn5.setStyle("-fx-background-color: lightgreen;");
+            btn7.setStyle("-fx-background-color: lightgreen;");
+        }
+
     }
 
     /**
@@ -143,6 +215,7 @@ public class TicTacViewController implements Initializable
         {
             Button btn = (Button) n;
             btn.setText("");
+            btn.setStyle(null);
         }
     }
 }
