@@ -4,6 +4,7 @@ package dk.easv.tictactoe.gui.controller;
 // Java imports
 import java.net.URL;
 import java.util.ResourceBundle;
+
 import dk.easv.tictactoe.bll.AiGameBoard;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,7 +22,7 @@ import dk.easv.tictactoe.bll.IGameBoard;
  *
  * @author EASV
  */
-public class TicTacViewController implements Initializable {
+public class AiTicTacViewController implements Initializable {
     @FXML
     private Label lblPlayer;
 
@@ -51,7 +52,6 @@ public class TicTacViewController implements Initializable {
     private Button btn9;
 
     private static final String TXT_PLAYER = "Player: ";
-    private IGameBoard game;
     private AiGameBoard aiGame;
     private boolean gameOver = false;
 
@@ -67,30 +67,50 @@ public class TicTacViewController implements Initializable {
             Integer col = GridPane.getColumnIndex((Node) event.getSource());
             int r = (row == null) ? 0 : row;
             int c = (col == null) ? 0 : col;
-            int player = game.getNextPlayer();
-            if (game.play(c, r)) {
-                if (!gameOver) {
-                    if (game.isGameOver()) {
-                        int winner = game.getWinner();
-                        displayWinner(winner);
-                        Button btn = (Button) event.getSource();
-                        String xOrO = player == 0 ? "X" : "O";
-                        btn.setText(xOrO);
-                        gameOver = true;
+            int player = aiGame.getNextPlayer();
 
-                    } else {
-                        Button btn = (Button) event.getSource();
-                        String xOrO = player == 0 ? "X" : "O";
-                        btn.setText(xOrO);
-                        setPlayer();
-                    }
+            if (!gameOver && aiGame.playerPlay(c, r)) {
+                Button btn = (Button) event.getSource();
+                String xOrO = player == 0 ? "X" : "O";
+                btn.setText(xOrO);
+
+                if (aiGame.isGameOver()) {
+                    int winner = aiGame.getWinner();
+                    displayWinner(winner);
+                    gameOver = true;
+                    return;
                 }
+                int [] coords = aiGame.computerPlay();
+                if (coords != null) {
+                    computerSymbol(coords[0],coords[1]);
+                }
+                if (aiGame.isGameOver()){
+                    int winner = aiGame.getWinner();
+                    displayWinner(winner);
+                    gameOver = true;
+                    return;
+                }
+                setPlayer();
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
+    private void computerSymbol(int col, int row) {
+        for (Node n : gridPane.getChildren()) {
+            Integer nodeRow = GridPane.getRowIndex(n);
+            Integer nodeCol = GridPane.getColumnIndex(n);
+            int r = (nodeRow == null) ? 0 : nodeRow;
+            int c = (nodeCol == null) ? 0 : nodeCol;
+
+            if (r== row && c==col && n instanceof Button){
+                Button btn = (Button) n;
+                btn.setText("X");
+                break;
+            }
+        }
+    }
     /**
      * Event handler for starting a new game
      *
@@ -98,7 +118,7 @@ public class TicTacViewController implements Initializable {
      */
     @FXML
     private void handleNewGame(ActionEvent event) {
-        game.newGame();
+        aiGame.newGame();
         setPlayer();
         clearBoard();
         gameOver = false;
@@ -114,7 +134,7 @@ public class TicTacViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        game = new GameBoard();
+        aiGame = new GameBoard();
         setPlayer();
     }
 
@@ -122,7 +142,7 @@ public class TicTacViewController implements Initializable {
      * Set the next player
      */
     private void setPlayer() {
-        lblPlayer.setText(TXT_PLAYER + game.getNextPlayer());
+        lblPlayer.setText("Your turn!");
     }
 
 
@@ -146,7 +166,7 @@ public class TicTacViewController implements Initializable {
     }
 
     public void setWinnerColor() {
-        GameBoard gameBoard = (GameBoard) game;
+        GameBoard gameBoard = (GameBoard) aiGame;
         int horizontalWinner = gameBoard.getHorizontalWinner();
         int verticalWinner = gameBoard.getVerticalWinner();
         boolean diagonalWinner1 = gameBoard.isDiagonalWinner1();

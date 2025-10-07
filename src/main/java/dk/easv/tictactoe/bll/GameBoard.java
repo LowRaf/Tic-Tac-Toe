@@ -4,9 +4,10 @@ package dk.easv.tictactoe.bll;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
-public class GameBoard implements IGameBoard
+public class GameBoard implements IGameBoard, AiGameBoard
 {
     /**
      *
@@ -24,7 +25,7 @@ public class GameBoard implements IGameBoard
      *
      * @return int Id of the next player.
      */
-    private int playerId =1 ;
+    private int playerId = 0 ;
     public int getNextPlayer()
     {
         if (playerId==0)
@@ -62,6 +63,31 @@ public class GameBoard implements IGameBoard
 
         else
             return false;
+    }
+
+    public boolean playerPlay(int col, int row) {
+        if( playerId==0) {
+            if (board[col][row] == -1) {
+                board[col][row] = playerId;
+                playerId = 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int[] computerPlay() {
+        int[] coords = null;
+        for (int i = 0; i < 3 && playerId == 1; i++) {
+            for (int j = 0; j < 3 && playerId == 1; j++) {
+                if (board[i][j] == -1) {
+                    board[i][j] = 1;
+                    coords = new int[]{i, j};
+                    playerId = 0;
+                }
+            }
+        }
+        return coords;
     }
 
     /**
@@ -128,7 +154,7 @@ public class GameBoard implements IGameBoard
                 board [i][j] = -1;
             }
         }
-        playerId=1;
+        playerId=0;
         winner = -1;
         horizontalWinner = -1;
         verticalWinner = -1;
