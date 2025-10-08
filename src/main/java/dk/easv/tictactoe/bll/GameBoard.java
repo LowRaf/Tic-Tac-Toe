@@ -7,7 +7,7 @@ import javafx.scene.control.Button;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class GameBoard implements IGameBoard, AiGameBoard
+public class GameBoard implements IGameBoard, AiGameBoard, HardAiGameBoard
 {
     /**
      *
@@ -69,7 +69,8 @@ public class GameBoard implements IGameBoard, AiGameBoard
         if( playerId==0) {
             if (board[col][row] == -1) {
                 board[col][row] = playerId;
-                playerId = 1;
+                if(!isGameOver()){
+                playerId = 1;}
                 return true;
             }
         }
@@ -90,6 +91,80 @@ public class GameBoard implements IGameBoard, AiGameBoard
         return coords;
     }
 
+    public int[] optimalMove() {
+        double bestScore = Double.NEGATIVE_INFINITY;
+        int moveCol = -1;
+        int moveRow = -1;
+        int [] coords = null;
+
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                if (board[i][j]==-1){
+                    board[i][j] = 1;
+                    double score = minimax (false, 0);
+                    board[i][j] = -1;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        moveCol = i;
+                        moveRow = j;
+
+                    }
+                }
+            }
+        }
+            if (moveCol != -1 && moveRow != -1) {
+            board[moveCol][moveRow] = 1;
+            coords = new int[]{moveCol, moveRow};
+        }
+            if(!isGameOver()){
+            playerId = 0;}
+        return coords;
+    }
+
+    public double minimax(boolean isMaximizing, int depth) {
+        if (isGameOver()) {
+            switch (winner) {
+                case 1:
+                    return 10 - depth;
+                case 0:
+                    return depth - 10;
+                case -1:
+                    return 0;
+            }
+        }
+
+        if (isMaximizing) {
+            double bestScore = Double.NEGATIVE_INFINITY;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j] == -1) {
+                        board[i][j] = 1;
+                        double score = minimax(false, depth + 1);
+                        board[i][j] = -1;
+                        bestScore = Math.max(score, bestScore);
+
+                    }
+                }
+
+            }
+            return bestScore;
+        } else {
+            double bestScore = Double.POSITIVE_INFINITY;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j] == -1) {
+                        board[i][j] = 0;
+                        double score = minimax(true, depth + 1);
+                        board[i][j] = -1;
+                        bestScore = Math.min(score, bestScore);
+
+                    }
+                }
+            }
+            return bestScore;
+        }
+    }
+
     /**
      * Tells us if the game has ended either by draw or by meeting the winning
      * condition.
@@ -103,22 +178,34 @@ public class GameBoard implements IGameBoard, AiGameBoard
             if (board[i][0] == 0 && board[i][1] == 0 && board[i][2] == 0 || board[i][0] == 1 && board[i][1] == 1 && board[i][2] == 1) {
                 winner = board[i][0];
                 horizontalWinner = i;
+                verticalWinner = -1;
+                diagonalWinner1 = false;
+                diagonalWinner2 = false;
                 return true;
             }
         for (int i = 0; i<3; i++)
             if (board[0][i] == 0 && board[1][i] == 0 && board[2][i] == 0 || board[0][i] == 1 && board[1][i] == 1 && board[2][i] == 1) {
                 winner = board[0][i];
                 verticalWinner = i;
+                horizontalWinner = -1;
+                diagonalWinner1 = false;
+                diagonalWinner2 = false;
                 return true;
             }
         if (board[0][0] == 0 && board[1][1] == 0 && board[2][2] == 0 || board[0][0] == 1 && board[1][1] == 1 && board[2][2] == 1) {
             winner = board[1][1];
             diagonalWinner1 = true;
+            horizontalWinner = -1;
+            verticalWinner = -1;
+            diagonalWinner2 = false;
             return true;
         }
         if (board[2][0] == 0 && board[1][1] == 0 && board[0][2] == 0 || board[2][0] == 1 && board[1][1] == 1 && board[0][2] == 1) {
             winner = board[1][1];
             diagonalWinner2= true;
+            horizontalWinner = -1;
+            verticalWinner = -1;
+            diagonalWinner1 = false;
             return true;
         }
         int counter=0;
@@ -130,10 +217,12 @@ public class GameBoard implements IGameBoard, AiGameBoard
             }
         }
         if (counter==9) {
+            winner = -1;
             return true;
         }
         return false;
     }
+
 
     /**
      * Gets the id of the winner, -1 if its a draw.
@@ -181,6 +270,4 @@ public class GameBoard implements IGameBoard, AiGameBoard
     {
         return diagonalWinner2;
     }
-
-
 }
